@@ -1,35 +1,27 @@
-
 var connection = require("../config/connection.js");
 
 function printQuestionMarks(num) {
     var arr = [];
+
     for (var i = 0; i < num; i++) {
         arr.push("?");
     }
+    
     return arr.toString();
 }
 
-
+// converts object key/value pairts to SQL
 function objToSql(ob) {
     var arr = [];
+
     // loop through the keys 
     for (var key in ob) {
         var value = ob[key];
-        // check  hidden properties
-        if (Object.hasOwnProperty.call(ob, key)) {
-            // if string with spaces, add quotations (David Dior Christian => 'David John Jackson')
-            if (typeof value === "string" && value.indexOf(" ") >= 0) {
-                value = "'" + value + "'";
-            }
-            // e.g. {name: 'Lana Del Grey'} => ["name='David John Jackson'"]
-            // e.g. {sleepy: true} => ["sleepy=true"]
-            arr.push(key + "=" + value);
-        }
     }
-    // translate array of strings to a single comma-separated string
-    return arr.toString();
+  return arr.toString();
 }
 
+// Creates orm
 var orm = {
     // Display all burgers in the db.
     selectAll: function(table, cb) {
@@ -39,6 +31,7 @@ var orm = {
             if (err) {
                 throw err;
             }
+
             cb(result);
         });
     },
@@ -52,47 +45,39 @@ var orm = {
         queryString += printQuestionMarks(vals.length);
         queryString += ") ";
 
-        console.log(queryString);
+        //console.log(queryString);
 
+        // Perfom the databse query
         connection.query(queryString, vals, function(err, result) {
             if (err) {
                 throw err
             }
+
+            // Return Results in callback
             cb(result);
         });
     },
+
     // Set burger devoured status to true.
     updateOne: function(table, objColVals, condition, cb) {
+    // Creates query strings that updates a single entry
         var queryString = "UPDATE " + table;
         queryString += " SET ";
         queryString += objToSql(objColVals);
         queryString += " WHERE ";
         queryString += condition;
 
-        console.log(queryString);
+        //console.log(queryString);
 
         connection.query(queryString, function(err, result) {
             if (err) {
                 throw err
             }
-            cb(result);
-        });
-    },
-    // Delete a burger from the db.
-    deleteOne: function(table, condition, cb) {
-        var queryString = "DELETE FROM " + table;
-        queryString += " WHERE ";
-        queryString += condition;
 
-        console.log(queryString);
-
-        connection.query(queryString, function(err, result) {
-            if (err) {
-                throw err
-            }
             cb(result);
         });
     }
+    
 };
 
 // Export the ORM object in module.exports.
